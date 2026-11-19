@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1F4A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Williams træning">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<title>Williams træning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Klubverden: mørk blå bund, gul accent. Én kolonne, store trykflader til mobil i træningscenteret. */
+  --navy:#0B1F4A; --navy-2:#132C63; --navy-3:#1C3A7A;
+  --yellow:#FFD100; --ink:#F2F5FB; --muted:#9FB0D3;
+  --good:#3DDC97; --warn:#FF8A3D;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--navy);color:var(--ink);font:16px/1.45 var(--body);-webkit-tap-highlight-color:transparent;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 120px}
+header.top{position:sticky;top:0;z-index:5;background:var(--navy);border-bottom:4px solid var(--yellow);
+  padding:12px 16px 10px}
+header.top .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.crest{width:40px;height:47px;flex:none;display:block}
+.top h1{font:800 24px/1 var(--display);letter-spacing:.5px;margin:0;text-transform:uppercase}
+.top .sub{font-size:13px;color:var(--muted)}
+nav.tabs{display:flex;gap:6px;margin:14px 0}
+nav.tabs button{flex:1;background:var(--navy-2);border:0;border-radius:10px;padding:10px 4px;font:700 15px/1 var(--display);
+  letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+nav.tabs button[aria-selected="true"]{background:var(--yellow);color:var(--navy)}
+h2{font:800 26px/1.05 var(--display);text-transform:uppercase;letter-spacing:.4px;margin:18px 0 8px;text-wrap:balance}
+h3{font:700 19px/1.15 var(--display);letter-spacing:.3px;margin:0}
+.muted{color:var(--muted)}
+.card{background:var(--navy-2);border-radius:14px;padding:14px}
+.stack{display:grid;gap:10px}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1;min-width:0}
+.weekbar{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:10px 0 6px}
+.weekbar span{height:30px;border-radius:6px;background:var(--navy-3);display:grid;place-items:center;font:700 14px/1 var(--display);color:var(--muted)}
+.weekbar span.done{background:#2a4a8f;color:var(--ink)}
+.weekbar span.now{background:var(--yellow);color:var(--navy)}
+.passbtn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--navy-2);border:2px solid transparent;
+  border-radius:14px;padding:14px}
+.passbtn.next{border-color:var(--yellow)}
+.passbtn .letter{width:52px;height:52px;border-radius:12px;background:var(--navy-3);display:grid;place-items:center;font:800 30px/1 var(--display);flex:none}
+.passbtn.next .letter{background:var(--yellow);color:var(--navy)}
+.pill{display:inline-block;font:700 12px/1 var(--body);padding:5px 8px;border-radius:99px;background:var(--navy-3);color:var(--muted);letter-spacing:.3px}
+.pill.y{background:var(--yellow);color:var(--navy)}
+.pill.g{background:rgba(61,220,151,.18);color:var(--good)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--navy-2);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font:800 30px/1 var(--display);color:var(--yellow);font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-size:12px}
+.btn{border:0;border-radius:12px;padding:14px 16px;font:800 18px/1 var(--display);letter-spacing:.6px;text-transform:uppercase;
+  background:var(--yellow);color:var(--navy);width:100%}
+.btn.ghost{background:var(--navy-3);color:var(--ink)}
+.btn.small{width:auto;padding:10px 12px;font-size:15px}
+.ex{background:var(--navy-2);border-radius:14px;padding:14px;display:grid;gap:10px;border-left:5px solid var(--navy-3)}
+.ex.complete{border-left-color:var(--good)}
+.ex .meta{display:flex;flex-wrap:wrap;gap:6px}
+.ex .tip{font-size:14px;color:var(--muted)}
+.ex a.video{color:var(--yellow);font-weight:600;text-decoration:none;font-size:14px;white-space:nowrap}
+.sets{display:grid;gap:6px}
+.set{display:grid;grid-template-columns:44px 1fr 1fr 44px;gap:6px;align-items:center}
+.set .n{font:700 15px/1 var(--display);color:var(--muted);text-align:center}
+.set input{width:100%;background:var(--navy);border:1px solid var(--navy-3);border-radius:10px;padding:10px 8px;font-size:16px;
+  text-align:center;font-variant-numeric:tabular-nums}
+.set input::placeholder{color:#5f74a3}
+.chk{width:44px;height:44px;border-radius:10px;border:2px solid var(--navy-3);background:var(--navy);display:grid;place-items:center}
+.chk[aria-pressed="true"]{background:var(--good);border-color:var(--good);color:var(--navy)}
+.chk svg{width:22px;height:22px}
+.last{font-size:13px;color:var(--muted)}
+.last b{color:var(--ink)}
+.warm li{margin:4px 0}
+.warm{margin:0;padding-left:20px}
+details.card summary{font:700 19px/1 var(--display);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.card summary::-webkit-details-marker{display:none}
+details.card[open] summary{margin-bottom:8px}
+.timer{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--yellow);color:var(--navy);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:none}
+.timer.on{display:block}
+.timer .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.timer b{font:800 40px/1 var(--display);font-variant-numeric:tabular-nums;min-width:90px}
+.timer button{border:0;border-radius:10px;padding:10px 12px;background:var(--navy);color:var(--yellow);font:700 15px/1 var(--display);text-transform:uppercase}
+.timer.done{background:var(--good)}
+.hist{display:grid;gap:8px}
+.hrow{display:flex;gap:12px;align-items:center;background:var(--navy-2);border-radius:12px;padding:10px 12px}
+.hrow .l{width:36px;height:36px;border-radius:9px;background:var(--navy-3);display:grid;place-items:center;font:800 20px/1 var(--display)}
+.spark{width:100%;height:56px;display:block}
+.prog{display:grid;gap:8px}
+.prog .card{padding:10px 12px}
+.tests{display:grid;gap:8px}
+.tests .trow{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center}
+.tests input,.field input{width:100%;background:var(--navy);border:1px solid var(--navy-3);border-radius:10px;padding:10px;font-size:16px}
+.field{display:grid;gap:4px}
+.field label{font-size:13px;color:var(--muted)}
+textarea{width:100%;min-height:120px;background:var(--navy);border:1px solid var(--navy-3);border-radius:10px;padding:10px;color:var(--ink);font:14px/1.4 ui-monospace,Menlo,monospace}
+.note{font-size:13px;color:var(--muted)}
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--ink);color:var(--navy);padding:10px 14px;border-radius:10px;font-weight:600;z-index:20;display:none}
+.toast.on{display:block}
+.banner{background:rgba(255,138,61,.15);color:var(--warn);border-radius:12px;padding:10px 12px;font-size:14px}
+.sr{position:absolute;left:-9999px}
+@media (prefers-reduced-motion:no-preference){.ex,.passbtn{transition:border-color .2s}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <svg class="crest" viewBox="0 0 44 52" aria-label="WJ nummer 7" role="img">
+    <path d="M22 1.5 L41.5 7 V25 C41.5 38 32.5 46 22 50.5 C11.5 46 2.5 38 2.5 25 V7 Z" fill="#FFD100"/>
+    <path d="M22 5.5 L37.5 9.8 V25 C37.5 35.5 30.5 42 22 46 C13.5 42 6.5 35.5 6.5 25 V9.8 Z" fill="#0B1F4A"/>
+    <text x="22" y="17.5" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="8.5" letter-spacing="1" fill="#FFD100">WJ</text>
+    <text x="22" y="40" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="24" fill="#FFD100">7</text>
+  </svg>
+  <div class="grow"><h1 id="title">Styrke &amp; fart</h1><div class="sub" id="subtitle">Nr. 7 · 8-ugers program</div></div>
+</div></header>
+
+<div class="wrap">
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-home" data-v="home" aria-selected="true">Træn</button>
+    <button role="tab" id="tab-hist" data-v="hist" aria-selected="false">Fremgang</button>
+    <button role="tab" id="tab-far" data-v="far" aria-selected="false">Til far</button>
+  </nav>
+  <div id="storeWarn" class="banner" hidden>Telefonen gemmer ikke data lige nu (fx privat browsing). Åbn appen fra ikonet på hjemmeskærmen, og brug "Til far" → "Kopiér backup" efter træning.</div>
+  <main id="view"></main>
+</div>
+
+<div class="timer" id="timer" role="status" aria-live="polite"><div class="in">
+  <b id="tLeft">1:30</b>
+  <div class="grow"><div style="font-weight:600" id="tLabel">Pause</div><div style="font-size:13px">Næste sæt når den bipper</div></div>
+  <button id="tPlus">+15 s</button><button id="tStop">Stop</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- Program ---------- */
+const PROGRAM = {
+  A:{name:"Styrke + spring",day:"Mandag",focus:"Eksplosive ben og stærk bagside",ex:[
+    {id:"box",name:"Box jump (knæhøj kasse)",sets:3,reps:"5",rest:60,unit:null,tip:"Land blødt, stå stille, træd ned.",video:"https://www.lyfta.app/da/exercise/hop-p-fit-box-8d5"},
+    {id:"goblet",name:"Goblet squat",sets:3,reps:"8",rest:90,unit:"kg",tip:"Brystet op, knæ ud over tæerne.",video:"https://www.lyfta.app/da/exercise/kettlebell-goblet-squat-6o0"},
+    {id:"rdl",name:"Rumænsk dødløft (håndvægte)",sets:3,reps:"8",rest:90,unit:"kg",tip:"Ret ryg, skub numsen bagud.",video:"https://lyfta.app/da/exercise/dumbbell-rumnsk-ddlft-7t1"},
+    {id:"bss",name:"Bulgarsk split squat",sets:3,reps:"6 pr. ben",rest:60,unit:"kg",tip:"Start uden vægt.",video:"https://www.lyfta.app/da/exercise/bulgarsk-split-squat-8tg"},
+    {id:"nordic",name:"Nordic hamstring",sets:3,reps:"4",rest:90,unit:null,tip:"Partner holder anklerne. Sænk dig langsomt.",video:"https://uk.physitrack.com/home-exercise-video/nordic-hamstring-curl"},
+    {id:"plank",name:"Planke",sets:3,reps:"30 sek",rest:30,unit:"sek",tip:"Spænd mave og baller.",video:"https://www.lyfta.app/exercise/front-plank-6m3"}]},
+  B:{name:"Hurtighed + styrke",day:"Onsdag",focus:"Første skridt, retningsskift, kraft i hoften",ex:[
+    {id:"sprint",name:"Sprint 10 m fra faldstart",sets:5,reps:"1",rest:75,unit:"sek",tip:"Fald frem, korte hurtige skridt.",video:"https://www.youtube.com/results?search_query=falling+start+sprint+drill"},
+    {id:"bound",name:"Lateral bound",sets:3,reps:"4 pr. side",rest:60,unit:null,tip:"Sidehop fra ben til ben. Hold landingen 2 sek.",video:"https://www.lyfta.app/exercise/lateral-bound-6od"},
+    {id:"agility",name:"5-10-5 skift",sets:4,reps:"1",rest:90,unit:"sek",tip:"Lavt tyngdepunkt i vendingen.",video:"https://www.youtube.com/watch?v=qYDXaXRodWc"},
+    {id:"hip",name:"Hip thrust",sets:3,reps:"10",rest:60,unit:"kg",tip:"Pres numsen op, hold 1 sek.",video:"https://www.lyfta.app/exercise/hip-thrust-39"},
+    {id:"stepup",name:"Step-up på bænk, eksplosiv",sets:3,reps:"6 pr. ben",rest:60,unit:"kg",tip:"Driv knæet op.",video:"https://www.lyfta.app/exercise/dumbbell-step-up-6lf"},
+    {id:"calf",name:"Tæåhæv på ét ben",sets:3,reps:"12 pr. ben",rest:45,unit:"kg",tip:"Langsomt ned.",video:"https://www.lyfta.app/exercise/single-leg-calf-raise-6tn"},
+    {id:"pallof",name:"Pallof press",sets:3,reps:"10 pr. side",rest:30,unit:"kg",tip:"Hold kroppen helt stille.",video:"https://www.lyfta.app/exercise/cable-horizontal-pallof-press-75y"}]},
+  C:{name:"Stabilitet (let)",day:"Fredag",focus:"Skadesforebyggelse, kan laves hjemme",ex:[
+    {id:"cph",name:"Copenhagen planke (knæ på bænk)",sets:3,reps:"15 sek pr. side",rest:30,unit:"sek",tip:"Forebygger lyskeskader.",video:"https://ca.physitrack.com/home-exercise-video/copenhagen-hip-adduction-exercise"},
+    {id:"bal",name:"Balance på ét ben + bold mod væg",sets:3,reps:"30 sek pr. ben",rest:30,unit:null,tip:"Knæet peger frem.",video:"https://www.youtube.com/results?search_query=single+leg+balance+ball+toss+wall"},
+    {id:"push",name:"Armhævninger",sets:3,reps:"8–12",rest:45,unit:"stk",tip:"Kroppen som en planke.",video:"https://www.lyfta.app/exercise/push-up-75j"},
+    {id:"row",name:"Inverted row",sets:3,reps:"8–10",rest:45,unit:"stk",tip:"Klem skulderbladene sammen.",video:"https://www.lyfta.app/exercise/inverted-row-6n9"},
+    {id:"side",name:"Sideplanke",sets:3,reps:"20 sek pr. side",rest:30,unit:"sek",tip:"Hofte højt.",video:"https://www.lyfta.app/da/exercise/side-planke-6t1"},
+    {id:"stretch",name:"Udstræk: hoftebøjer, læg, baglår",sets:1,reps:"30 sek hver",rest:0,unit:null,tip:"Rolig vejrtrækning.",video:"https://www.youtube.com/results?search_query=udstr%C3%A6kning+efter+fodbold"}]}
+};
+const WEEKS = {
+  1:"Lær teknikken. Let eller ingen vægt. Tag 2 sæt i stedet for 3.",
+  2:"Lær teknikken. Let eller ingen vægt. Tag 2 sæt i stedet for 3.",
+  3:"Fuldt antal sæt. Øg vægten lidt, når alle gentagelser er pæne.",
+  4:"Fuldt antal sæt. Øg vægten lidt, når alle gentagelser er pæne.",
+  5:"+1 gentagelse på spring og Nordic. Sprint op til 15 m.",
+  6:"+1 gentagelse på spring og Nordic. Sprint op til 15 m.",
+  7:"Let uge: halvér antallet af sæt.",
+  8:"Testuge: tag testene igen og se fremgangen."
+};
+const YT=q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q);
+const WARMUP = [
+  {t:"Cykel eller let løb – 4 min",how:"Roligt tempo, så du bliver varm og lidt forpustet.",v:null},
+  {t:"Benpendul frem/tilbage og sidelæns – 10 pr. ben",how:"Hold fast i en væg og sving benet frit frem og tilbage, derefter fra side til side foran kroppen.",v:YT("leg swings warm up front back side to side")},
+  {t:"Udfald med rotation – 6 pr. ben",how:"Langt skridt frem, sænk dig til begge knæ er 90°, drej overkroppen ind over forreste ben. Knæet peger lige frem.",v:YT("lunge with twist warm up")},
+  {t:"Hoftebøjer-stræk med armen op – 30 sek pr. side",how:"Knæ i gulvet, andet ben frem. Skub hoften frem og stræk armen op på samme side som knæet.",v:YT("kneeling hip flexor stretch arm overhead")},
+  {t:"A-skip og hælspark – 2 × 15 m",how:"A-skip: små hop hvor knæet løftes højt skiftevis. Hælspark: løb roligt og spark hælene op mod numsen.",v:YT("A skip drill and butt kicks warm up")},
+  {t:"2 × 10 m stigningsløb (70–90 %)",how:"Start roligt og sæt farten op, så du er næsten i fuld fart til sidst. Gå tilbage.",v:YT("build up runs strides warm up football")}
+];
+const TESTS = [{id:"t10",name:"10 m sprint",unit:"sek",better:"low"},{id:"jump",name:"Længdespring samlet",unit:"cm",better:"high"},{id:"t5105",name:"5-10-5 skift",unit:"sek",better:"low"}];
+
+/* ---------- Lagring ---------- */
+const KEY="hik-styrke-v1";
+let memOnly=false;
+function blank(){return{name:"William",start:todayISO(),sessions:[],tests:[],draft:null}}
+function load(){try{const s=localStorage.getItem(KEY);if(s)return Object.assign(blank(),JSON.parse(s));}catch(e){memOnly=true}return blank()}
+let S=load();
+function save(){try{const j=JSON.stringify(S);localStorage.setItem(KEY,j);if(localStorage.getItem(KEY)!==j)throw 0;}catch(e){memOnly=true;document.getElementById("storeWarn").hidden=false}}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+try{localStorage.setItem(KEY+"-t","1");localStorage.removeItem(KEY+"-t")}catch(e){memOnly=true}
+if(memOnly)document.getElementById("storeWarn").hidden=false;
+
+/* ---------- Hjælpere ---------- */
+function todayISO(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function fmtDate(iso){const d=new Date(iso+"T12:00:00");return d.toLocaleDateString("da-DK",{weekday:"short",day:"numeric",month:"short"})}
+function weekNo(){const s=new Date(S.start+"T00:00:00"),n=new Date();const w=Math.floor((n-s)/(7*864e5))+1;return Math.max(1,Math.min(8,w))}
+function rawWeek(){const s=new Date(S.start+"T00:00:00"),n=new Date();return Math.floor((n-s)/(7*864e5))+1}
+function el(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?"":v)}for(const k of kids.flat()){if(k==null||k===false)continue;e.append(k.nodeType?k:document.createTextNode(String(k)))}return e}
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>x.classList.remove("on"),2200)}
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
+function nextPass(){const last=S.sessions[S.sessions.length-1];if(!last)return"A";if(last.pass==="A")return"B";if(last.pass==="B")return"C";return"A"}
+function lastFor(exId){for(let i=S.sessions.length-1;i>=0;i--){const e=S.sessions[i].ex[exId];if(e&&e.sets.some(s=>s.v!==""&&s.v!=null))return{date:S.sessions[i].date,sets:e.sets}}return null}
+function bestVal(sets){const v=sets.map(s=>parseFloat(String(s.v).replace(",","."))).filter(x=>!isNaN(x));return v.length?Math.max(...v):null}
+function sessionsThisWeek(){const s=new Date(S.start+"T00:00:00");const w=rawWeek();return S.sessions.filter(x=>Math.floor((new Date(x.date+"T12:00:00")-s)/(7*864e5))+1===w).length}
+
+/* ---------- Visninger ---------- */
+let view="home";
+function setView(v){view=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));render();window.scrollTo(0,0)}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.v)));
+
+function render(){
+  const t=document.getElementById("title");t.textContent=S.name?S.name+"s træning":"Styrke & fart";
+  const v=document.getElementById("view");v.replaceChildren();
+  if(S.draft&&view==="home")v.append(renderWorkout());
+  else if(view==="home")v.append(renderHome());
+  else if(view==="hist")v.append(renderHist());
+  else v.append(renderFar());
+}
+
+function renderHome(){
+  const w=weekNo(),nx=nextPass(),f=document.createDocumentFragment();
+  const wb=el("div",{class:"weekbar","aria-label":"Uge "+w+" af 8"});
+  for(let i=1;i<=8;i++)wb.append(el("span",{class:i<w?"done":i===w?"now":""},i));
+  f.append(el("h2",{},"Uge "+w+" af 8"),wb,el("p",{class:"muted",style:"margin:4px 0 12px"},WEEKS[w]));
+  if(rawWeek()>8)f.append(el("div",{class:"banner",style:"margin-bottom:12px"},"De 8 uger er gået. Tag testene under Fremgang, og start forfra med lidt tungere vægte."));
+  f.append(el("div",{class:"stats"},
+    el("div",{class:"stat"},el("b",{},sessionsThisWeek()),el("small",{},"pas denne uge")),
+    el("div",{class:"stat"},el("b",{},S.sessions.length),el("small",{},"pas i alt")),
+    el("div",{class:"stat"},el("b",{},S.sessions.length?fmtDate(S.sessions[S.sessions.length-1].date).replace(".",""):"–"),el("small",{},"sidste pas"))));
+  if(S.sessions.length&&(!S.lastBackup||Date.now()-S.lastBackup>14*864e5))f.append(el("div",{class:"banner",style:"margin-top:12px"},"Husk at tage backup: Til far → Kopiér backup, og send koden til far."));
+  f.append(el("h2",{},"Vælg pas"));
+  const list=el("div",{class:"stack"});
+  for(const k of["A","B","C"]){const p=PROGRAM[k];
+    list.append(el("button",{class:"passbtn"+(k===nx?" next":""),onclick:()=>startWorkout(k)},
+      el("div",{class:"letter"},k),
+      el("div",{class:"grow"},el("h3",{},p.name),el("div",{class:"muted",style:"font-size:14px"},p.day+" · "+p.ex.length+" øvelser · "+p.focus)),
+      k===nx?el("span",{class:"pill y"},"Næste"):null));
+  }
+  f.append(list);
+  f.append(el("p",{class:"note",style:"margin-top:14px"},"Tirsdag og torsdag er fodbold, weekenden er kamp. Pas C er valgfrit. Intet tungt benpas dagen før kamp."));
+  return f;
+}
+
+function startWorkout(k){
+  const ex={};for(const e of PROGRAM[k].ex)ex[e.id]={sets:Array.from({length:e.sets},()=>({v:"",r:"",done:false}))};
+  S.draft={pass:k,date:todayISO(),warm:WARMUP.map(()=>false),ex};save();render();window.scrollTo(0,0);
+}
+
+function renderWorkout(){
+  const d=S.draft,p=PROGRAM[d.pass],f=document.createDocumentFragment();
+  f.append(el("div",{class:"row",style:"margin-top:4px"},el("span",{class:"pill y"},"Pas "+d.pass),el("span",{class:"pill"},fmtDate(d.date))));
+  f.append(el("h2",{},p.name),el("p",{class:"muted",style:"margin:0 0 12px"},WEEKS[weekNo()]));
+  // Opvarmning
+  const wDone=d.warm.filter(Boolean).length;
+  const det=el("details",{class:"card",open:wDone<WARMUP.length?true:false},
+    el("summary",{},el("span",{},"Opvarmning 8–10 min"),el("span",{class:wDone===WARMUP.length?"pill g":"pill"},wDone+"/"+WARMUP.length)));
+  const ul=el("div",{class:"stack",style:"gap:6px"});
+  WARMUP.forEach((w,i)=>{const b=el("button",{class:"chk","aria-pressed":d.warm[i]?"true":"false","aria-label":w.t,onclick:()=>{d.warm[i]=!d.warm[i];save();render()}});b.innerHTML=d.warm[i]?CHECK:"";
+    ul.append(el("div",{class:"row",style:"align-items:flex-start"},b,el("div",{class:"grow"},
+      el("div",{class:"row",style:"align-items:flex-start;gap:8px"},el("div",{class:"grow",style:"font-size:15px;font-weight:600"},w.t),
+        w.v?el("a",{class:"video",href:w.v,target:"_blank",rel:"noopener"},"▶ Video"):null),
+      el("div",{class:"tip",style:"font-size:13px;color:var(--muted);margin-top:2px"},w.how))))});
+  det.append(ul);f.append(det);
+  // Øvelser
+  const list=el("div",{class:"stack",style:"margin-top:10px"});
+  p.ex.forEach((e,idx)=>{
+    const st=d.ex[e.id],all=st.sets.every(s=>s.done);
+    const card=el("section",{class:"ex"+(all?" complete":"")});
+    card.append(el("div",{class:"row",style:"align-items:flex-start"},
+      el("div",{class:"grow"},el("h3",{},(idx+1)+". "+e.name),
+        el("div",{class:"meta",style:"margin-top:6px"},el("span",{class:"pill y"},e.sets+" × "+e.reps),e.rest?el("span",{class:"pill"},"Pause "+e.rest+" s"):null)),
+      el("a",{class:"video",href:e.video,target:"_blank",rel:"noopener"},"▶ Video")));
+    card.append(el("div",{class:"tip"},e.tip));
+    const last=lastFor(e.id);
+    if(last&&e.unit){card.append(el("div",{class:"last"},"Sidst ("+fmtDate(last.date)+"): ",el("b",{},last.sets.filter(s=>s.v!=="").map(s=>s.v+(s.r?"×"+s.r:"")).join(" · ")+" "+e.unit)))}
+    const sets=el("div",{class:"sets"});
+    if(e.unit)sets.append(el("div",{class:"set",style:"font-size:12px;color:var(--muted)"},el("span"),el("span",{style:"text-align:center"},e.unit==="kg"?"Vægt (kg)":e.unit==="sek"?"Tid (sek)":"Antal"),el("span",{style:"text-align:center"},e.unit==="kg"?"Gentagelser":"Note"),el("span")));
+    st.sets.forEach((s,i)=>{
+      const c=el("button",{class:"chk","aria-pressed":s.done?"true":"false","aria-label":"Sæt "+(i+1)+" færdigt",onclick:()=>{s.done=!s.done;save();render();if(s.done&&e.rest)startTimer(e.rest,e.name)}});c.innerHTML=s.done?CHECK:"";
+      if(e.unit){
+        const ph=last&&last.sets[i]&&last.sets[i].v!==""?String(last.sets[i].v):(e.unit==="kg"?"kg":e.unit);
+        const a=el("input",{id:"v-"+e.id+"-"+i,inputmode:"decimal",placeholder:ph,value:s.v,"aria-label":"Sæt "+(i+1)+" "+e.unit,oninput:ev=>{s.v=ev.target.value;save()}});
+        const b=el("input",{id:"r-"+e.id+"-"+i,inputmode:e.unit==="kg"?"numeric":"text",placeholder:e.unit==="kg"?String(parseInt(e.reps)||""):"",value:s.r,"aria-label":"Sæt "+(i+1)+" gentagelser",oninput:ev=>{s.r=ev.target.value;save()}});
+        sets.append(el("div",{class:"set"},el("span",{class:"n"},"Sæt "+(i+1)),a,b,c));
+      }else{
+        sets.append(el("div",{class:"set",style:"grid-template-columns:44px 1fr 44px"},el("span",{class:"n"},"Sæt "+(i+1)),el("span",{class:"muted",style:"font-size:14px"},e.reps),c));
+      }
+    });
+    card.append(sets);list.append(card);
+  });
+  f.append(list);
+  const doneSets=p.ex.reduce((a,e)=>a+d.ex[e.id].sets.filter(s=>s.done).length,0),totSets=p.ex.reduce((a,e)=>a+e.sets,0);
+  f.append(el("div",{class:"stack",style:"margin-top:16px"},
+    el("button",{class:"btn",onclick:finishWorkout},"Afslut pas ("+doneSets+"/"+totSets+" sæt)"),
+    el("button",{class:"btn ghost",onclick:cancelWorkout},"Annullér pas")));
+  return f;
+}
+
+let confirmCancel=false;
+function cancelWorkout(ev){
+  if(!confirmCancel){confirmCancel=true;ev.target.textContent="Tryk igen for at slette passet";setTimeout(()=>{confirmCancel=false;if(ev.target.isConnected)ev.target.textContent="Annullér pas"},3000);return}
+  confirmCancel=false;S.draft=null;save();stopTimer();render();
+}
+function finishWorkout(){
+  const d=S.draft;const p=PROGRAM[d.pass];
+  const doneSets=p.ex.reduce((a,e)=>a+d.ex[e.id].sets.filter(s=>s.done).length,0);
+  if(doneSets===0){toast("Sæt kryds ved mindst ét sæt først");return}
+  S.sessions.push({pass:d.pass,date:d.date,warm:d.warm.filter(Boolean).length,ex:d.ex,done:doneSets,total:p.ex.reduce((a,e)=>a+e.sets,0)});
+  S.draft=null;save();stopTimer();toast("Gemt ✓ Godt gået!");setView("hist");
+}
+
+/* ---------- Timer ---------- */
+let tEnd=0,tInt=null,actx=null;
+function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();[0,0.25,0.5].forEach(o=>{const g=actx.createGain(),osc=actx.createOscillator();osc.frequency.value=880;osc.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.25,actx.currentTime+o);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+o+.2);osc.start(actx.currentTime+o);osc.stop(actx.currentTime+o+.2)})}catch(e){}try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
+function startTimer(sec,label){
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume&&actx.resume()}catch(e){}
+  tEnd=Date.now()+sec*1000;document.getElementById("tLabel").textContent="Pause · "+label;
+  const T=document.getElementById("timer");T.classList.add("on");T.classList.remove("done");
+  clearInterval(tInt);tick();tInt=setInterval(tick,250);
+}
+function tick(){const left=Math.max(0,Math.ceil((tEnd-Date.now())/1000));document.getElementById("tLeft").textContent=Math.floor(left/60)+":"+String(left%60).padStart(2,"0");
+  if(left<=0){clearInterval(tInt);document.getElementById("timer").classList.add("done");document.getElementById("tLabel").textContent="Klar til næste sæt!";beep();setTimeout(()=>{if(Date.now()-tEnd>4000)stopTimer()},5000)}}
+function stopTimer(){clearInterval(tInt);document.getElementById("timer").classList.remove("on","done")}
+document.getElementById("tStop").addEventListener("click",stopTimer);
+document.getElementById("tPlus").addEventListener("click",()=>{if(Date.now()>tEnd)tEnd=Date.now();tEnd+=15000;document.getElementById("timer").classList.remove("done");clearInterval(tInt);tick();tInt=setInterval(tick,250)});
+
+/* ---------- Fremgang ---------- */
+function spark(points,unit,lowBetter){
+  const W=300,H=56,P=6;if(points.length<2)return null;
+  const vs=points.map(p=>p.v),mn=Math.min(...vs),mx=Math.max(...vs),rng=mx-mn||1;
+  const xy=points.map((p,i)=>[P+i*(W-2*P)/(points.length-1),H-P-((p.v-mn)/rng)*(H-2*P)]);
+  const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.setAttribute("class","spark");svg.setAttribute("preserveAspectRatio","none");
+  const area=document.createElementNS(ns,"path");area.setAttribute("d","M"+xy[0][0]+","+(H-P)+" L"+xy.map(p=>p.join(",")).join(" L")+" L"+xy[xy.length-1][0]+","+(H-P)+" Z");area.setAttribute("fill","rgba(255,209,0,.15)");
+  const line=document.createElementNS(ns,"polyline");line.setAttribute("points",xy.map(p=>p.join(",")).join(" "));line.setAttribute("fill","none");line.setAttribute("stroke","#FFD100");line.setAttribute("stroke-width","2.5");line.setAttribute("vector-effect","non-scaling-stroke");
+  const dot=document.createElementNS(ns,"circle");const e=xy[xy.length-1];dot.setAttribute("cx",e[0]);dot.setAttribute("cy",e[1]);dot.setAttribute("r","4");dot.setAttribute("fill","#FFD100");
+  svg.append(area,line,dot);return svg;
+}
+function renderHist(){
+  const f=document.createDocumentFragment();
+  // Tests
+  f.append(el("h2",{},"Test"),el("p",{class:"muted",style:"margin:0 0 8px"},"Tag testene i uge 1 og uge 8. Tid med mobilens stopur."));
+  const tc=el("div",{class:"card tests"});
+  const inputs={};
+  TESTS.forEach(t=>{const hist=S.tests.filter(x=>x[t.id]!=null&&x[t.id]!=="");const first=hist[0],last=hist[hist.length-1];
+    let diff="";if(first&&last&&first!==last){const a=parseFloat(first[t.id]),b=parseFloat(last[t.id]);if(!isNaN(a)&&!isNaN(b)){const d=(b-a);const good=t.better==="low"?d<0:d>0;diff=(d>0?"+":"")+d.toFixed(t.unit==="cm"?0:2)+" "+t.unit+(good?" ✓":"")}}
+    inputs[t.id]=el("input",{id:"test-"+t.id,inputmode:"decimal",placeholder:t.unit});
+    tc.append(el("div",{class:"trow"},el("div",{},el("div",{style:"font-weight:600"},t.name),el("div",{class:"note"},last?("Sidst: "+last[t.id]+" "+t.unit+" ("+fmtDate(last.date)+")"+(diff?" · "+diff+" siden første":"")):"Ingen test endnu")),inputs[t.id]));
+  });
+  tc.append(el("button",{class:"btn small",style:"justify-self:end",onclick:()=>{const r={date:todayISO()};let any=false;TESTS.forEach(t=>{const v=inputs[t.id].value.trim().replace(",",".");if(v){r[t.id]=v;any=true}});if(!any){toast("Skriv mindst ét resultat");return}S.tests.push(r);save();toast("Test gemt");render()}},"Gem test"));
+  f.append(tc);
+  // Progression pr. øvelse
+  f.append(el("h2",{},"Udvikling"));
+  const pr=el("div",{class:"prog"});let anyP=false;
+  for(const k of["A","B","C"])for(const e of PROGRAM[k].ex){if(!e.unit||e.unit==="stk"&&false)continue;
+    const pts=S.sessions.filter(s=>s.ex[e.id]).map(s=>({d:s.date,v:bestVal(s.ex[e.id].sets)})).filter(p=>p.v!=null);
+    if(!pts.length)continue;anyP=true;const lowBetter=e.unit==="sek"&&(e.id==="sprint"||e.id==="agility");
+    const lastP=pts[pts.length-1],firstP=pts[0];
+    pr.append(el("div",{class:"card"},el("div",{class:"row"},el("div",{class:"grow",style:"font-weight:600"},e.name),
+      el("span",{class:"pill y"},(lowBetter?"Bedst ":"Top ")+lastP.v+" "+e.unit)),
+      spark(pts,e.unit,lowBetter)||el("div",{class:"note"},"Én registrering indtil videre"),
+      pts.length>1?el("div",{class:"note"},fmtDate(firstP.d)+": "+firstP.v+" "+e.unit+" → "+fmtDate(lastP.d)+": "+lastP.v+" "+e.unit):null));
+  }
+  if(!anyP)pr.append(el("div",{class:"card note"},"Skriv vægt eller tid ind under passene, så kommer kurverne her."));
+  f.append(pr);
+  // Historik
+  f.append(el("h2",{},"Gennemførte pas"));
+  const h=el("div",{class:"hist"});
+  if(!S.sessions.length)h.append(el("div",{class:"card note"},"Ingen pas endnu. Første pas er Pas A."));
+  [...S.sessions].reverse().forEach(s=>{const p=PROGRAM[s.pass];h.append(el("div",{class:"hrow"},el("div",{class:"l"},s.pass),el("div",{class:"grow"},el("div",{style:"font-weight:600"},p.name),el("div",{class:"note"},fmtDate(s.date)+" · "+s.done+"/"+s.total+" sæt")),s.done===s.total?el("span",{class:"pill g"},"Fuldt"):null))});
+  f.append(h);
+  return f;
+}
+
+/* ---------- Til far ---------- */
+function summary(){
+  const w=weekNo(),n=S.name||"Træning";const lines=[n+" – status uge "+w+" af 8","Pas i alt: "+S.sessions.length+" · denne uge: "+sessionsThisWeek()];
+  const last=S.sessions.slice(-3).reverse();if(last.length){lines.push("","Seneste pas:");last.forEach(s=>{lines.push("• "+fmtDate(s.date)+": Pas "+s.pass+" ("+s.done+"/"+s.total+" sæt)");
+    PROGRAM[s.pass].ex.forEach(e=>{if(!e.unit)return;const b=bestVal(s.ex[e.id]?.sets||[]);if(b!=null)lines.push("   "+e.name+": "+b+" "+e.unit)})})}
+  const t=S.tests[S.tests.length-1];if(t){lines.push("","Seneste test ("+fmtDate(t.date)+"):");TESTS.forEach(x=>{if(t[x.id])lines.push("• "+x.name+": "+t[x.id]+" "+x.unit)})}
+  return lines.join("\n");
+}
+async function copy(txt,ok){try{await navigator.clipboard.writeText(txt);toast(ok)}catch(e){toast("Markér teksten og kopiér den selv")}}
+function renderFar(){
+  const f=document.createDocumentFragment();
+  f.append(el("h2",{},"Send status til far"),el("p",{class:"muted",style:"margin:0 0 8px"},"Kopiér teksten og send den på SMS eller Messenger efter træning."));
+  const sum=el("textarea",{id:"sumTxt",readonly:true});sum.value=summary();
+  f.append(el("div",{class:"stack"},sum,el("button",{class:"btn",onclick:()=>copy(sum.value,"Kopieret – sæt ind i en besked")},"Kopiér status")));
+  f.append(el("h2",{},"Indstillinger"));
+  const name=el("input",{id:"setName",value:S.name,placeholder:"Fx Mads",autocomplete:"off"});
+  const start=el("input",{id:"setStart",type:"date",value:S.start});
+  f.append(el("div",{class:"card stack"},
+    el("div",{class:"field"},el("label",{for:"setName"},"Navn"),name),
+    el("div",{class:"field"},el("label",{for:"setStart"},"Startdato for uge 1"),start),
+    el("button",{class:"btn small",style:"justify-self:end",onclick:()=>{S.name=name.value.trim();if(start.value)S.start=start.value;save();toast("Gemt");render()}},"Gem")));
+  f.append(el("h2",{},"Backup"));
+  const bk=el("textarea",{id:"bkTxt",placeholder:"Indsæt en backup-kode her for at hente data på en ny telefon"});
+  f.append(el("div",{class:"card stack"},
+    el("p",{class:"note",style:"margin:0"},"Data gemmes kun på denne telefon. Kopiér backup en gang imellem, og send den til far, så kan alt hentes igen, hvis telefonen skiftes."),
+    el("button",{class:"btn ghost",onclick:()=>{S.lastBackup=Date.now();save();copy(btoa(unescape(encodeURIComponent(JSON.stringify({...S,draft:null})))),"Backup kopieret")}},"Kopiér backup"),
+    bk,
+    el("button",{class:"btn ghost",onclick:()=>{try{const d=JSON.parse(decodeURIComponent(escape(atob(bk.value.trim()))));if(!Array.isArray(d.sessions))throw 0;S=Object.assign(blank(),d);save();toast("Backup hentet");render()}catch(e){toast("Koden virker ikke – kopiér den hele igen")}}},"Hent backup")));
+  return f;
+}
+
+render();
+</script>
+</body>
+</html>

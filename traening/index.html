@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Min træning">
+<meta name="theme-color" content="#9E2F5D">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<title>Min træning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Lys, rolig bund med dyb bærfarve som accent. Én kolonne, store trykflader, bundmenu som en app. */
+  --bg:#F6F3F4; --surface:#FFFFFF; --surface-2:#F0EAEC; --line:#E4DBDF;
+  --ink:#1F1A1D; --muted:#76696F;
+  --accent:#9E2F5D; --accent-ink:#FFFFFF; --accent-soft:#F6E3EB;
+  --good:#2E8B62; --good-soft:#E2F3EA; --warn:#C2621B;
+  --display:"Sora",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141113; --surface:#1E191C; --surface-2:#2A2327; --line:#382F34;
+  --ink:#F4EEF1; --muted:#AD9FA6; --accent:#E06C9A; --accent-ink:#1A0E14; --accent-soft:#3A2230;
+  --good:#5CC796; --good-soft:#1C3328; --warn:#F09A5A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141113; --surface:#1E191C; --surface-2:#2A2327; --line:#382F34;
+  --ink:#F4EEF1; --muted:#AD9FA6; --accent:#E06C9A; --accent-ink:#1A0E14; --accent-soft:#3A2230;
+  --good:#5CC796; --good-soft:#1C3328; --warn:#F09A5A; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body);-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom))}
+h1{font:800 28px/1.1 var(--display);margin:6px 0 4px;letter-spacing:-.4px;text-wrap:balance}
+h2{font:700 19px/1.2 var(--display);margin:22px 0 10px;letter-spacing:-.2px}
+h3{font:700 16px/1.25 var(--display);margin:0}
+.muted{color:var(--muted)} .small{font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.stack{display:grid;gap:10px}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:4px;font:600 12px/1 var(--body);padding:6px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
+.pill.a{background:var(--accent-soft);color:var(--accent)}
+.pill.g{background:var(--good-soft);color:var(--good)}
+.btn{border:0;border-radius:14px;padding:15px 16px;font:700 16px/1 var(--display);background:var(--accent);color:var(--accent-ink);width:100%}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn.sm{width:auto;padding:10px 14px;font-size:14px;border-radius:12px}
+.btn.line{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.link{background:none;border:0;color:var(--accent);font-weight:600;padding:6px 0}
+/* Bundmenu */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+nav.bottom .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+nav.bottom button{background:none;border:0;display:grid;justify-items:center;gap:2px;padding:6px;color:var(--muted);font-size:12px;font-weight:600}
+nav.bottom button svg{width:24px;height:24px}
+nav.bottom button[aria-current="page"]{color:var(--accent)}
+/* Programmer */
+.prog{border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.prog .head{padding:16px;background:linear-gradient(135deg,var(--accent),#5B1F3C);color:#fff}
+.prog .head h3{font-size:20px;color:#fff}
+.prog .head p{margin:6px 0 0;font-size:14px;opacity:.9}
+.wo{display:flex;align-items:center;gap:12px;padding:13px 16px;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left}
+.wo .ico{width:40px;height:40px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:800 14px/1 var(--display);flex:none}
+.wo .chev{color:var(--muted)}
+/* Pas-detalje */
+.block{display:grid;gap:8px}
+.blabel{font:600 12px/1 var(--body);letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.exrow{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.exrow .letter{width:26px;height:26px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font:700 12px/1 var(--display);color:var(--muted);flex:none}
+.exrow.done{border-color:var(--good)}
+.exrow.done .letter{background:var(--good);color:#fff}
+/* Afspiller */
+.player{display:grid;gap:12px}
+.progressbar{display:flex;gap:3px}
+.progressbar span{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.progressbar span.on{background:var(--accent)}
+.progressbar span.cur{background:var(--ink)}
+.exhead{display:grid;gap:6px}
+.exhead h1{font-size:24px}
+.setrow{display:grid;grid-template-columns:40px 1fr 1fr 48px;gap:8px;align-items:center}
+.setrow .n{font:700 14px/1 var(--display);color:var(--muted);text-align:center}
+.stepper{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;background:var(--surface-2);border-radius:12px;height:48px}
+.stepper button{background:none;border:0;height:100%;font:700 20px/1 var(--body);color:var(--muted)}
+.stepper input{width:100%;min-width:0;background:none;border:0;text-align:center;font:700 17px/1 var(--display);font-variant-numeric:tabular-nums;padding:0}
+.stepper small{display:block;text-align:center;font-size:10px;color:var(--muted);margin-top:-4px}
+.chk{width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--accent-ink)}
+.chk[aria-pressed="true"]{background:var(--good);border-color:var(--good);color:#fff}
+.chk svg{width:22px;height:22px}
+.navrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.timer{position:fixed;left:0;right:0;bottom:0;z-index:12;background:var(--ink);color:var(--bg);display:none;
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom))}
+.timer.on{display:block}
+.timer.done{background:var(--good);color:#fff}
+.timer .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.timer b{font:800 36px/1 var(--display);font-variant-numeric:tabular-nums;min-width:86px}
+.timer button{border:0;border-radius:10px;padding:10px 12px;background:rgba(255,255,255,.16);color:inherit;font-weight:700}
+.big{font:800 88px/1 var(--display);text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-2px}
+.phase{text-align:center;font:700 14px/1 var(--display);letter-spacing:1px;text-transform:uppercase}
+.phase.work{color:var(--accent)} .phase.rest{color:var(--good)}
+.ring{display:grid;place-items:center;padding:22px 0}
+/* Aktivitet */
+.weekchart{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:150px;padding:8px 0 0}
+.weekchart .col{display:grid;gap:6px;justify-items:center;align-items:end;height:100%}
+.weekchart .bar{width:70%;max-width:30px;border-radius:8px 8px 3px 3px;background:var(--accent);min-height:3px}
+.weekchart .bar.zero{background:var(--line)}
+.weekchart .lab{font-size:12px;color:var(--muted)}
+.weekchart .val{font-size:11px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.tile b{display:block;font:800 22px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.tile small{color:var(--muted);font-size:12px}
+.tile.goal{background:var(--good-soft);border-color:transparent}
+.sess{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+/* Fremskridt */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:8px 12px;font-weight:600;font-size:14px;color:var(--muted)}
+.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chart{width:100%;height:190px;display:block}
+.field{display:grid;gap:4px}
+.field label{font-size:13px;color:var(--muted);font-weight:600}
+.field input,.field select,textarea{width:100%;background:var(--surface-2);border:1px solid transparent;border-radius:12px;padding:12px;font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+textarea{min-height:110px;font:13px/1.4 ui-monospace,Menlo,monospace}
+/* Ark (bottom sheet) */
+.sheet-bg{position:fixed;inset:0;background:rgba(20,10,15,.45);z-index:20;display:none}
+.sheet-bg.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--bg);border-radius:20px 20px 0 0;max-height:88%;overflow:auto;
+  padding:16px 16px calc(20px + env(safe-area-inset-bottom));display:none}
+.sheet.on{display:block}
+.sheet .in{max-width:560px;margin:0 auto;display:grid;gap:12px}
+.rate{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rate button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 6px;font-weight:700}
+.rate button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:12px;font-weight:600;z-index:30;display:none}
+.toast.on{display:block}
+.banner{background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:12px 14px;font-weight:600;display:flex;gap:10px;align-items:center}
+.vid{display:inline-flex;gap:6px;align-items:center;color:var(--accent);font-weight:700;text-decoration:none;font-size:14px}
+@media (prefers-reduced-motion:no-preference){.chk,.exrow{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap"><main id="view"></main></div>
+
+<nav class="bottom" id="nav"><div class="in">
+  <button data-v="train" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/></svg>Træning</button>
+  <button data-v="act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Aktivitet</button>
+  <button data-v="prog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg>Fremskridt</button>
+</div></nav>
+
+<div class="timer" id="timer" role="status" aria-live="polite"><div class="in">
+  <b id="tLeft">1:00</b><div class="grow"><div style="font-weight:700" id="tLabel">Pause</div><div class="small" style="opacity:.8">Næste sæt når den bipper</div></div>
+  <button id="tPlus">+15 s</button><button id="tStop">Stop</button>
+</div></div>
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="in" id="sheetIn"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= Standardprogrammer (fra den gamle app) ================= */
+let _id=0;const uid=p=>(p||"x")+Date.now().toString(36)+(_id++).toString(36);
+function N(name,sets,reps,extra){return Object.assign({id:uid("e"),name,sets,reps,rest:60,unit:"kg"},extra||{})}
+function CARDIO(name,min){return{id:uid("e"),name,sets:1,reps:min+" min",rest:60,unit:"min"}}
+const DEFAULT_PROGRAMS=()=>[
+ {id:"badass2",name:"BADASS 2.0",desc:"3 træninger om ugen, delt op i push, pull og legs, så alle muskelgrupper får mest muligt volumen. Fordel træningerne over ugen, så der er en eller flere hviledage imellem. Gå 7–10.000 skridt dagligt ved siden af.",
+  workouts:[
+   {id:"push",name:"Push",type:"sets",tags:"Bryst · Skuldre · Triceps · Mave",blocks:[
+     {kind:"normal",ex:[CARDIO("Stairmaster",10)]},
+     {kind:"normal",ex:[N("Bench Press",3,"10")]},
+     {kind:"normal",ex:[N("Seated Dumbbell Press",3,"10")]},
+     {kind:"normal",ex:[N("Plateloaded Incline Machine Chest Press",3,"10")]},
+     {kind:"super",ex:[N("Dumbbell Lateral Raise",3,"10"),N("Standing Dumbbell Front Raise",3,"10")]},
+     {kind:"normal",ex:[N("Cable Straight Bar Tricep Extension",3,"10")]},
+     {kind:"super",ex:[N("Flutter Kicks",3,"10",{unit:null}),N("Russian Twist",3,"10")]}]},
+   {id:"pull",name:"Pull",type:"sets",tags:"Ryg · Biceps · Mave",blocks:[
+     {kind:"normal",ex:[CARDIO("Stairmaster",10)]},
+     {kind:"normal",ex:[N("Wide Grip Pull Down",3,"10–12")]},
+     {kind:"normal",ex:[N("Plateloaded Machine Row",3,"12")]},
+     {kind:"normal",ex:[N("Dumbbell Bent Over Row",3,"10")]},
+     {kind:"drop",ex:[N("Wide Grip One Arm Cable Pull Down",3,"8–12",{note:"1 drop pr. sæt"})]},
+     {kind:"super",ex:[N("Cable Rope Straight Arm Pull Down",3,"12"),N("Cable Face Pull",3,"12")]},
+     {kind:"normal",ex:[N("Standing Barbell Bicep Curl",3,"8")]},
+     {kind:"super",ex:[N("Floor Leg Raise",3,"10",{unit:null}),N("Dumbbell Side Bends",3,"10")]}]},
+   {id:"legs",name:"Legs",type:"sets",tags:"Baller · Lår · Baglår · Mave",blocks:[
+     {kind:"normal",ex:[CARDIO("Stairmaster",10)]},
+     {kind:"normal",ex:[N("Squat",3,"8")]},
+     {kind:"normal",ex:[N("Barbell Hip Thrust",3,"10–12")]},
+     {kind:"super",ex:[N("Dumbbell Bulgarian Split Squat",3,"8"),N("Bodyweight Bulgarian Split Squat",3,"12",{unit:null})]},
+     {kind:"super",ex:[N("Cable Glute Kickback",3,"12"),N("Cable Hip Abduction",3,"12")]},
+     {kind:"normal",ex:[N("Machine Lying Leg Curl",3,"10")]},
+     {kind:"super",ex:[N("Crunch",3,"10",{unit:null}),N("Lying Leg and Hip Raise",3,"10",{unit:null}),N("Side Crunch",3,"10",{unit:null})]}]}
+  ]},
+ {id:"assw",name:"ASS WORKOUT",desc:"3 træninger om ugen fordelt på underkrop, overkrop og hele kroppen – med mave i hvert pas.",
+  workouts:[
+   {id:"lower",name:"Lower + mave",type:"sets",tags:"Baller · Lår · Baglår · Mave",blocks:[
+     {kind:"normal",ex:[CARDIO("Treadmill Power Walk",10)]},
+     {kind:"normal",ex:[N("Smith Machine Hip Thrust",3,"12")]},
+     {kind:"normal",ex:[N("Machine Hip Abduction",3,"10")]},
+     {kind:"normal",ex:[N("45 Degree Wide Stance Leg Press",3,"12")]},
+     {kind:"normal",ex:[N("Romanian Deadlift",3,"12")]},
+     {kind:"normal",ex:[N("Cable Step Up",3,"10")]},
+     {kind:"normal",ex:[N("Cable Glute Kickback",3,"15")]},
+     {kind:"normal",ex:[N("Weighted Hyperextension",3,"12")]},
+     {kind:"super",ex:[N("Floor Leg Raise",3,"10",{unit:null}),N("Alternating Lying Heel Touches",3,"10",{unit:null})]}]},
+   {id:"upper",name:"Upper + mave",type:"sets",tags:"Skuldre · Ryg · Arme · Mave",blocks:[
+     {kind:"normal",ex:[CARDIO("Treadmill Power Walk",10)]},
+     {kind:"super",ex:[N("Leaning Cable Lateral Raise",3,"12"),N("One Arm Cable Front Raise",3,"12")]},
+     {kind:"normal",ex:[N("Straight Arm Pull Down",3,"10")]},
+     {kind:"normal",ex:[N("Seated One Arm Cable Row",3,"8–12")]},
+     {kind:"normal",ex:[N("Seated Smith Machine Shoulder Press",3,"10")]},
+     {kind:"super",ex:[N("One Arm Dumbbell Preacher Curl",3,"12"),N("Cable Rope Tricep Extension",3,"10")]},
+     {kind:"super",ex:[N("Bench Lying Leg Raise",3,"12",{unit:null}),N("Side Crunch",3,"10",{unit:null})]}]},
+   {id:"full",name:"Fullbody",type:"sets",tags:"Hele kroppen · Mave",blocks:[
+     {kind:"normal",ex:[CARDIO("Treadmill Power Walk",10)]},
+     {kind:"normal",ex:[N("Smith Machine Squat",3,"10")]},
+     {kind:"normal",ex:[N("Barbell Good Morning",3,"15")]},
+     {kind:"normal",ex:[N("Dumbbell Lateral Raise",3,"12")]},
+     {kind:"normal",ex:[N("Wide Neutral Grip Pull Down",3,"12")]},
+     {kind:"normal",ex:[N("Seated Neutral Grip Shoulder Press",3,"12")]},
+     {kind:"normal",ex:[N("Seated Cable Row",3,"10")]},
+     {kind:"normal",ex:[N("Machine Rear Delt Fly",3,"12")]},
+     {kind:"super",ex:[N("Cable Crunch",3,"12"),N("Bench Lying Leg Raise",3,"12",{unit:null})]}]}
+  ]},
+ {id:"core",name:"CORE",desc:"Cirkeltræning på tid for mave og core. Kan laves hjemme uden udstyr.",
+  workouts:[
+   {id:"hiit",name:"HIIT / cirkeltræning",type:"circuit",tags:"Mave · Skrå mavemuskler · Core",work:40,restSec:20,rounds:3,blocks:[
+     {kind:"circuit",ex:["Dead Bug","Plank Shoulder Taps","Reverse Crunch","Side Plank (højre)","Side Plank (venstre)","Contralateral Bird Dog","Mountain Climber","Hollow Body Hold"].map(n=>({id:uid("e"),name:n,sets:3,reps:"40 sek",rest:20,unit:null}))}]}
+  ]}
+];
+const MEASURES=["Lår","Mave","Talje","Bryst","Overarm","Hofte","Baller"];
+const KINDLABEL={normal:"Normalt sæt",super:"Supersæt",drop:"Dropsæt",circuit:"Cirkeltræning på tid"};
+
+/* ================= Lagring ================= */
+const KEY="min-traening-v1";
+function blank(){return{programs:DEFAULT_PROGRAMS(),sessions:[],weights:[],goal:null,measures:[],draft:null}}
+let S;try{const raw=localStorage.getItem(KEY);S=raw?Object.assign(blank(),JSON.parse(raw)):blank()}catch(e){S=blank()}
+let canStore=true;
+function save(){try{const j=JSON.stringify(S);localStorage.setItem(KEY,j);if(localStorage.getItem(KEY)!==j)throw 0}catch(e){if(canStore){canStore=false;try{render()}catch(_){}}}}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+try{localStorage.setItem(KEY+"-t","1");localStorage.removeItem(KEY+"-t")}catch(e){canStore=false}
+
+/* ================= Hjælpere ================= */
+function el(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?"":v)}for(const k of kids.flat()){if(k==null||k===false)continue;e.append(k.nodeType?k:document.createTextNode(String(k)))}return e}
+const todayISO=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fmtDate=(iso,o)=>new Date(iso+"T12:00:00").toLocaleDateString("da-DK",o||{day:"numeric",month:"short"});
+const num=v=>{const x=parseFloat(String(v).replace(",","."));return isNaN(x)?null:x};
+const fmtN=(x,d=1)=>x==null?"–":(Math.round(x*Math.pow(10,d))/Math.pow(10,d)).toLocaleString("da-DK");
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>x.classList.remove("on"),2200)}
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
+const videoURL=n=>"https://www.youtube.com/results?search_query="+encodeURIComponent(n.replace(/\s*\((højre|venstre)\)/,"")+" exercise form");
+function findWO(pid,wid){const p=S.programs.find(x=>x.id===pid);return p?{p,w:p.workouts.find(x=>x.id===wid)}:{}}
+function flat(w){const out=[];w.blocks.forEach((b,bi)=>b.ex.forEach((e,ei)=>out.push({e,b,bi,ei,letter:b.ex.length>1?String.fromCharCode(65+ei):null})));return out}
+function countSets(w){return w.blocks.reduce((a,b)=>a+b.ex.reduce((s,e)=>s+(e.sets||1),0),0)}
+function countEx(w){return w.blocks.reduce((a,b)=>a+b.ex.length,0)}
+function lastSets(name){for(let i=S.sessions.length-1;i>=0;i--){const s=S.sessions[i];if(!s.log)continue;const r=s.log[name];if(r&&r.some(x=>x.done))return r}return null}
+
+/* ================= Sheet ================= */
+function openSheet(build){const bg=document.getElementById("sheetBg"),sh=document.getElementById("sheet"),inn=document.getElementById("sheetIn");inn.replaceChildren(build(closeSheet));bg.classList.add("on");sh.classList.add("on")}
+function closeSheet(){document.getElementById("sheetBg").classList.remove("on");document.getElementById("sheet").classList.remove("on")}
+document.getElementById("sheetBg").addEventListener("click",closeSheet);
+
+/* ================= Navigation ================= */
+let route={v:"train"};
+function go(r){route=r;if(r.v!=="play")stopTimer();const top=r.v==="workout"||r.v==="play"?"train":r.v;document.querySelectorAll("#nav button").forEach(b=>b.toggleAttribute("aria-current",false));const nb=document.querySelector('#nav button[data-v="'+top+'"]');if(nb)nb.setAttribute("aria-current","page");render();window.scrollTo(0,0)}
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>go({v:b.dataset.v})));
+function render(){
+  const v=document.getElementById("view");v.replaceChildren();
+  document.getElementById("nav").style.display=route.v==="play"?"none":"";
+  if(route.v==="train")v.append(viewTrain());
+  else if(route.v==="workout")v.append(viewWorkout());
+  else if(route.v==="play")v.append(S.draft&&S.draft.type==="circuit"?viewCircuit():viewPlay());
+  else if(route.v==="act")v.append(viewActivity());
+  else if(route.v==="prog")v.append(viewProgress());
+}
+
+/* ================= Træning ================= */
+function viewTrain(){
+  const f=document.createDocumentFragment();
+  f.append(el("h1",{},"Træning"));
+  if(!canStore)f.append(el("div",{class:"banner",style:"margin:8px 0"},"Telefonen gemmer ikke data lige nu (fx privat browsing). Åbn appen fra ikonet på hjemmeskærmen, og tag backup under Fremskridt."));
+  if(S.draft){const {w}=findWO(S.draft.pid,S.draft.wid);if(w)f.append(el("button",{class:"banner",style:"width:100%;border:0;margin:8px 0;text-align:left",onclick:()=>go({v:"play"})},el("span",{class:"grow"},"Du har et pas i gang: "+w.name),el("span",{},"Genoptag ›")))}
+  if((S.sessions.length||S.weights.length||S.measures.length)&&(!S.lastBackup||Date.now()-S.lastBackup>14*864e5))f.append(el("button",{class:"banner",style:"width:100%;border:0;margin:8px 0;text-align:left",onclick:()=>go({v:"prog"})},el("span",{class:"grow"},"Husk at tage backup af dine data"),el("span",{},"Fremskridt ›")));
+  const wk=weekStats(0);
+  f.append(el("div",{class:"tiles",style:"margin-top:10px"},
+    el("div",{class:"tile"},el("b",{},wk.count),el("small",{},"pas denne uge")),
+    el("div",{class:"tile"},el("b",{},wk.min),el("small",{},"minutter")),
+    el("div",{class:"tile"},el("b",{},S.sessions.length),el("small",{},"pas i alt"))));
+  f.append(el("h2",{},"Dine programmer"));
+  const list=el("div",{class:"stack"});
+  S.programs.forEach(p=>{
+    const box=el("section",{class:"prog"});
+    box.append(el("div",{class:"head"},el("h3",{},p.name),p.desc?el("p",{},p.desc):null));
+    p.workouts.forEach(w=>{
+      const last=[...S.sessions].reverse().find(s=>s.pid===p.id&&s.wid===w.id);
+      box.append(el("button",{class:"wo",onclick:()=>go({v:"workout",pid:p.id,wid:w.id})},
+        el("div",{class:"ico"},w.type==="circuit"?"⏱":String(p.workouts.indexOf(w)+1)),
+        el("div",{class:"grow"},el("div",{style:"font-weight:700"},w.name),el("div",{class:"small muted"},countEx(w)+" øvelser · "+(w.type==="circuit"?w.rounds+" runder":countSets(w)+" sæt")+(last?" · sidst "+fmtDate(last.date):""))),
+        el("span",{class:"chev"},"›")));
+    });
+    box.append(el("button",{class:"wo",style:"color:var(--accent);font-weight:700",onclick:()=>newWorkout(p)},el("div",{class:"ico"},"+"),el("div",{class:"grow"},"Nyt pas i "+p.name)));
+    list.append(box);
+  });
+  f.append(list);
+  f.append(el("button",{class:"btn line",style:"margin-top:12px",onclick:newProgram},"+ Nyt program"));
+  return f;
+}
+function newProgram(){openSheet(close=>{const n=el("input",{id:"np-name",placeholder:"Fx BADASS 3.0"}),d=el("input",{id:"np-desc",placeholder:"Kort beskrivelse (valgfri)"});
+  return el("div",{class:"stack"},el("h2",{style:"margin:0"},"Nyt program"),el("div",{class:"field"},el("label",{for:"np-name"},"Navn"),n),el("div",{class:"field"},el("label",{for:"np-desc"},"Beskrivelse"),d),
+    el("button",{class:"btn",onclick:()=>{if(!n.value.trim()){toast("Skriv et navn");return}S.programs.push({id:uid("p"),name:n.value.trim(),desc:d.value.trim(),workouts:[]});save();close();render()}},"Opret program"))})}
+function newWorkout(p){openSheet(close=>{const n=el("input",{id:"nw-name",placeholder:"Fx Lower + mave dag 2"});
+  return el("div",{class:"stack"},el("h2",{style:"margin:0"},"Nyt pas i "+p.name),el("div",{class:"field"},el("label",{for:"nw-name"},"Navn på passet"),n),
+    el("button",{class:"btn",onclick:()=>{if(!n.value.trim()){toast("Skriv et navn");return}const w={id:uid("w"),name:n.value.trim(),type:"sets",tags:"",blocks:[]};p.workouts.push(w);save();close();go({v:"workout",pid:p.id,wid:w.id,edit:true})}},"Opret og tilføj øvelser"))})}
+
+/* ================= Pas-oversigt ================= */
+function viewWorkout(){
+  const {p,w}=findWO(route.pid,route.wid);if(!w){route={v:"train"};return viewTrain()}
+  const f=document.createDocumentFragment(),edit=!!route.edit;
+  f.append(el("div",{class:"row"},el("button",{class:"link",onclick:()=>go({v:"train"})},"‹ Tilbage"),el("span",{class:"grow"}),
+    w.type==="sets"?el("button",{class:"link",onclick:()=>go(Object.assign({},route,{edit:!edit}))},edit?"Færdig":"Rediger"):null));
+  f.append(el("div",{class:"small muted",style:"font-weight:600;letter-spacing:.4px;text-transform:uppercase"},p.name),el("h1",{},w.name));
+  if(w.tags)f.append(el("div",{class:"row",style:"flex-wrap:wrap;gap:6px;margin:6px 0 4px"},w.tags.split(" · ").map(t=>el("span",{class:"pill"},t))));
+  f.append(el("p",{class:"muted small",style:"margin:6px 0 4px"},countEx(w)+" øvelser · "+(w.type==="circuit"?w.work+" sek arbejde · "+w.restSec+" sek pause · "+w.rounds+" runder":countSets(w)+" sæt · ca. 1 min pause")));
+  const list=el("div",{class:"stack",style:"margin-top:8px"});
+  w.blocks.forEach((b,bi)=>{
+    const blk=el("div",{class:"block"});
+    blk.append(el("div",{class:"blabel"},KINDLABEL[b.kind]+(b.kind==="super"?" · "+(b.ex[0]?.sets||3)+" runder":"")+(b.kind==="circuit"?" · "+w.rounds+" runder":"")));
+    b.ex.forEach((e,ei)=>{
+      const meta=w.type==="circuit"?w.work+" sek · "+w.restSec+" sek hvile":(e.unit==="min"?e.reps:(e.sets+" sæt · "+e.reps+" reps"))+(e.note?" · "+e.note:"")+(e.unit!=="min"&&b.kind==="normal"?" · 1 m hvile":"");
+      blk.append(el("div",{class:"exrow"},
+        b.ex.length>1?el("div",{class:"letter"},String.fromCharCode(65+ei)):null,
+        el("div",{class:"grow"},el("div",{style:"font-weight:600"},e.name),el("div",{class:"small muted"},meta)),
+        edit?el("button",{class:"link",style:"color:var(--muted)",onclick:()=>editExercise(w,bi,ei)},"Ret"):el("a",{class:"vid",href:videoURL(e.name),target:"_blank",rel:"noopener","aria-label":"Video af "+e.name},"▶")));
+    });
+    list.append(blk);
+  });
+  if(!w.blocks.length)list.append(el("div",{class:"card muted"},"Ingen øvelser endnu. Tryk på \"Tilføj øvelse\"."));
+  f.append(list);
+  if(edit){
+    f.append(el("div",{class:"stack",style:"margin-top:14px"},
+      el("button",{class:"btn",onclick:()=>editExercise(w,null,null)},"+ Tilføj øvelse"),
+      el("button",{class:"btn ghost",onclick:()=>{if(confirmTwice("delwo","Tryk igen for at slette passet")){p.workouts=p.workouts.filter(x=>x!==w);if(!p.workouts.length&&!DEFAULT_PROGRAMS().some(d=>d.id===p.id))S.programs=S.programs.filter(x=>x!==p);save();go({v:"train"})}}},"Slet pas")));
+  }else{
+    f.append(el("div",{style:"position:sticky;bottom:calc(76px + env(safe-area-inset-bottom));margin-top:16px"},
+      el("button",{class:"btn",onclick:()=>startSession(p,w)},S.draft&&S.draft.wid===w.id?"Genoptag passet":"Start pas")));
+  }
+  return f;
+}
+let _confirm={};
+function confirmTwice(key,msg){if(_confirm[key]&&Date.now()-_confirm[key]<3000){_confirm[key]=0;return true}_confirm[key]=Date.now();toast(msg);return false}
+function editExercise(w,bi,ei){
+  const isNew=bi==null;const e=isNew?{name:"",sets:3,reps:"10",unit:"kg"}:w.blocks[bi].ex[ei];
+  openSheet(close=>{
+    const n=el("input",{id:"ee-name",value:e.name,placeholder:"Fx Hip Thrust"}),s=el("input",{id:"ee-sets",inputmode:"numeric",value:e.sets}),r=el("input",{id:"ee-reps",value:e.reps});
+    const u=el("select",{id:"ee-unit"},el("option",{value:"kg"},"Med vægt (kg)"),el("option",{value:""},"Uden vægt"),el("option",{value:"min"},"Kardio (minutter)"));u.value=e.unit||"";
+    const k=el("select",{id:"ee-kind"},el("option",{value:"normal"},"Normalt sæt"),el("option",{value:"super"},"Supersæt med øvelsen før"),el("option",{value:"drop"},"Dropsæt"));
+    if(!isNew)k.value=w.blocks[bi].kind==="super"&&ei>0?"super":w.blocks[bi].kind;
+    return el("div",{class:"stack"},el("h2",{style:"margin:0"},isNew?"Tilføj øvelse":"Ret øvelse"),
+      el("div",{class:"field"},el("label",{for:"ee-name"},"Øvelse"),n),
+      el("div",{class:"grid2"},el("div",{class:"field"},el("label",{for:"ee-sets"},"Sæt"),s),el("div",{class:"field"},el("label",{for:"ee-reps"},"Reps / tid"),r)),
+      el("div",{class:"field"},el("label",{for:"ee-unit"},"Type"),u),
+      isNew?el("div",{class:"field"},el("label",{for:"ee-kind"},"Sættype"),k):null,
+      el("button",{class:"btn",onclick:()=>{
+        if(!n.value.trim()){toast("Skriv øvelsens navn");return}
+        const data={name:n.value.trim(),sets:Math.max(1,parseInt(s.value)||1),reps:r.value.trim()||"10",unit:u.value||null,rest:60};
+        if(isNew){const ex=Object.assign({id:uid("e")},data);const last=w.blocks[w.blocks.length-1];
+          if(k.value==="super"&&last&&last.kind!=="circuit"){last.kind="super";last.ex.push(ex)}else w.blocks.push({kind:k.value==="super"?"normal":k.value,ex:[ex]})}
+        else Object.assign(e,data);
+        save();close();render()}},isNew?"Tilføj":"Gem"),
+      !isNew?el("button",{class:"btn ghost",onclick:()=>{const b=w.blocks[bi];b.ex.splice(ei,1);if(!b.ex.length)w.blocks.splice(bi,1);else if(b.ex.length===1&&b.kind==="super")b.kind="normal";save();close();render()}},"Fjern øvelse"):null,
+      !isNew&&bi>0?el("button",{class:"btn line",onclick:()=>{const b=w.blocks.splice(bi,1)[0];w.blocks.splice(bi-1,0,b);save();close();render()}},"Flyt op"):null);
+  });
+}
+
+/* ================= Session (sæt) ================= */
+function startSession(p,w){
+  if(S.draft&&S.draft.wid===w.id){go({v:"play"});return}
+  if(S.draft&&!confirmTwice("replace","Du har et andet pas i gang. Tryk igen for at starte forfra")) return;
+  const log={};flat(w).forEach(({e})=>{const prev=lastSets(e.name);log[e.id]=Array.from({length:e.sets||1},(_,i)=>{const pv=prev&&prev[i];return{reps:pv&&pv.reps!=null?pv.reps:(parseInt(e.reps)||null),kg:pv&&pv.kg!=null?pv.kg:null,done:false}})});
+  S.draft={pid:p.id,wid:w.id,type:w.type,start:Date.now(),date:todayISO(),idx:0,log,ci:{phase:0,running:false}};save();go({v:"play"});
+}
+function viewPlay(){
+  const d=S.draft;const {p,w}=findWO(d.pid,d.wid);if(!w){S.draft=null;save();return viewTrain()}
+  const items=flat(w);d.idx=Math.min(d.idx,items.length-1);const it=items[d.idx],e=it.e,sets=d.log[e.id]||(d.log[e.id]=[{reps:null,kg:null,done:false}]);
+  const f=document.createDocumentFragment();
+  const pb=el("div",{class:"progressbar"});items.forEach((x,i)=>{const done=(d.log[x.e.id]||[]).every(s=>s.done);pb.append(el("span",{class:i===d.idx?"cur":done?"on":""}))});
+  f.append(el("div",{class:"row"},el("button",{class:"link",onclick:()=>{stopTimer();go({v:"workout",pid:d.pid,wid:d.wid})}},"‹ "+w.name),el("span",{class:"grow"}),el("button",{class:"link",onclick:()=>overview(items)},"Oversigt")),pb);
+  const ctx=KINDLABEL[it.b.kind]+(it.letter?" · "+it.letter:"")+" · øvelse "+(d.idx+1)+" af "+items.length;
+  f.append(el("div",{class:"exhead",style:"margin-top:14px"},el("div",{class:"small muted",style:"font-weight:600"},ctx),el("h1",{},e.name),
+    el("div",{class:"row",style:"flex-wrap:wrap;gap:6px"},el("span",{class:"pill a"},"Mål: "+(e.unit==="min"?e.reps:e.reps+" reps")),e.note?el("span",{class:"pill"},e.note):null,
+      el("a",{class:"vid",href:videoURL(e.name),target:"_blank",rel:"noopener",style:"margin-left:auto"},"▶ Se video"))));
+  if(it.b.kind==="super")f.append(el("p",{class:"small muted",style:"margin:0"},"Supersæt: tag ét sæt af hver øvelse i gruppen efter hinanden, og hold så pause."));
+  const card=el("div",{class:"card stack",style:"margin-top:4px"});
+  const showKg=e.unit==="kg",showReps=e.unit!=="min";
+  card.append(el("div",{class:"setrow small muted",style:"font-weight:600"},el("span",{style:"text-align:center"},"Sæt"),el("span",{style:"text-align:center"},showReps?"Reps":"Minutter"),el("span",{style:"text-align:center"},showKg?"Kg":""),el("span")));
+  sets.forEach((s,i)=>{
+    const mk=(key,step,dec)=>{const inp=el("input",{id:key+"-"+e.id+"-"+i,inputmode:dec?"decimal":"numeric",value:s[key]==null?"":String(s[key]).replace(".",","),placeholder:"–","aria-label":(key==="kg"?"Kg":"Reps")+" sæt "+(i+1),oninput:ev=>{s[key]=num(ev.target.value);save()}});
+      return el("div",{class:"stepper"},el("button",{"aria-label":"Mindre",onclick:()=>{s[key]=Math.max(0,(s[key]||0)-step);inp.value=String(s[key]).replace(".",",");save()}},"−"),inp,el("button",{"aria-label":"Mere",onclick:()=>{s[key]=(s[key]||0)+step;inp.value=String(s[key]).replace(".",",");save()}},"+"))};
+    const c=el("button",{class:"chk","aria-pressed":s.done?"true":"false","aria-label":"Sæt "+(i+1)+" færdigt",onclick:()=>{s.done=!s.done;save();
+      const allDone=sets.every(x=>x.done);
+      if(s.done){ if(it.b.kind==="super"&&it.ei<it.b.ex.length-1){/* videre til næste i supersættet */ d.idx++;save();render();toast("Videre til "+it.b.ex[it.ei+1].name);return}
+        if(it.b.kind==="super"&&it.ei===it.b.ex.length-1){const first=items.findIndex(x=>x.bi===it.bi);const more=it.b.ex.some(x=>(d.log[x.id]||[]).some(y=>!y.done));if(more){d.idx=first;save();render();startTimer(60,"Supersæt");return}}
+        if(e.unit!=="min"&&!allDone)startTimer(e.rest||60,e.name);
+        if(allDone&&d.idx<items.length-1){render();toast("Øvelse færdig – tryk Næste");return}}
+      render()}});c.innerHTML=s.done?CHECK:"";
+    card.append(el("div",{class:"setrow"},el("span",{class:"n"},i+1),showReps?mk("reps",1,false):el("span",{class:"muted",style:"text-align:center"},e.reps),showKg?mk("kg",1,true):el("span"),c));
+  });
+  card.append(el("button",{class:"link",style:"justify-self:start",onclick:()=>{sets.push({reps:sets[sets.length-1]?.reps??null,kg:sets[sets.length-1]?.kg??null,done:false});save();render()}},"+ Ekstra sæt"));
+  const prev=lastSets(e.name);
+  if(prev&&showKg){const best=prev.filter(x=>x.done&&x.kg!=null);if(best.length)card.append(el("div",{class:"small muted"},"Sidst: "+best.map(x=>(x.reps??"?")+" × "+fmtN(x.kg)+" kg").join(" · ")))}
+  f.append(card);
+  f.append(el("div",{class:"navrow",style:"margin-top:12px"},
+    el("button",{class:"btn ghost",disabled:d.idx===0,onclick:()=>{d.idx=Math.max(0,d.idx-1);save();render();window.scrollTo(0,0)}},"‹ Forrige"),
+    d.idx<items.length-1?el("button",{class:"btn",onclick:()=>{d.idx++;save();render();window.scrollTo(0,0)}},"Næste ›"):el("button",{class:"btn",onclick:finishSheet},"Afslut pas")));
+  f.append(el("button",{class:"link",style:"margin-top:8px;color:var(--muted)",onclick:()=>{if(confirmTwice("cancel","Tryk igen for at kassere passet")){S.draft=null;save();stopTimer();go({v:"train"})}}},"Kassér pas"));
+  return f;
+}
+function overview(items){
+  const d=S.draft;openSheet(close=>{const box=el("div",{class:"stack"},el("h2",{style:"margin:0"},"Oversigt over passet"));
+    let lastB=-1;items.forEach((x,i)=>{if(x.bi!==lastB){box.append(el("div",{class:"blabel"},KINDLABEL[x.b.kind]));lastB=x.bi}
+      const ss=d.log[x.e.id]||[],dn=ss.filter(s=>s.done).length;
+      box.append(el("button",{class:"exrow"+(dn===ss.length&&ss.length?" done":""),style:"text-align:left;width:100%",onclick:()=>{d.idx=i;save();close();render()}},
+        el("div",{class:"letter"},x.letter||"·"),el("div",{class:"grow"},el("div",{style:"font-weight:600"},x.e.name),el("div",{class:"small muted"},dn+"/"+ss.length+" sæt fuldført"))))});
+    box.append(el("button",{class:"btn",onclick:()=>{close();finishSheet()}},"Afslut pas"));return box});
+}
+function finishSheet(){
+  const d=S.draft;const {w}=findWO(d.pid,d.wid);
+  const mins=Math.max(1,Math.min(240,Math.round((Date.now()-d.start)/60000)));
+  let rating=null;
+  openSheet(close=>{
+    const m=el("input",{id:"fin-min",inputmode:"numeric",value:mins});
+    const rate=el("div",{class:"rate"});["Let","God","Hård"].forEach(r=>{const b=el("button",{"aria-pressed":"false",onclick:()=>{rating=r;rate.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))}},r);rate.append(b)});
+    const total=Object.values(d.log).reduce((a,s)=>a+s.length,0),done=Object.values(d.log).reduce((a,s)=>a+s.filter(x=>x.done).length,0);
+    return el("div",{class:"stack"},el("h2",{style:"margin:0"},"Godt gået!"),el("p",{class:"muted",style:"margin:0"},w.name+" · "+done+" af "+total+" sæt"),
+      el("div",{class:"field"},el("label",{for:"fin-min"},"Varighed (minutter)"),m),
+      el("div",{class:"field"},el("label",{},"Hvordan var passet?"),rate),
+      el("button",{class:"btn",onclick:()=>{
+        const log={};flat(w).forEach(({e})=>{log[e.name]=d.log[e.id]||[]});
+        S.sessions.push({pid:d.pid,wid:d.wid,name:w.name,date:d.date,min:Math.max(1,parseInt(m.value)||mins),rating,done,total,log});
+        S.draft=null;save();stopTimer();close();toast("Gemt ✓ Godt gået!");go({v:"act"})}},"Gem pas"),
+      el("button",{class:"btn ghost",onclick:close},"Tilbage til passet"));
+  });
+}
+
+/* ================= Session (cirkel på tid) ================= */
+let cInt=null;
+function phases(w){const ex=w.blocks[0].ex,out=[];for(let r=0;r<w.rounds;r++)ex.forEach((e,i)=>{out.push({t:"work",sec:w.work,e,r,i});if(!(r===w.rounds-1&&i===ex.length-1))out.push({t:"rest",sec:w.restSec,next:ex[(i+1)%ex.length],r,i})});return out}
+function viewCircuit(){
+  const d=S.draft;const {w}=findWO(d.pid,d.wid);if(!w){S.draft=null;save();return viewTrain()}
+  const ph=phases(w),ci=d.ci;const f=document.createDocumentFragment();
+  if(ci.phase>=ph.length){f.append(el("h1",{style:"margin-top:30px"},"Færdig!"),el("p",{class:"muted"},w.rounds+" runder klaret."),el("button",{class:"btn",onclick:finishCircuit},"Gem pas"));return f}
+  const cur=ph[ci.phase];
+  if(ci.left==null)ci.left=cur.sec;
+  const pb=el("div",{class:"progressbar"});ph.filter(x=>x.t==="work").forEach((x,i)=>{const idx=ph.indexOf(x);pb.append(el("span",{class:idx===ci.phase?"cur":idx<ci.phase?"on":""}))});
+  f.append(el("div",{class:"row"},el("button",{class:"link",onclick:()=>{pauseCircuit();go({v:"workout",pid:d.pid,wid:d.wid})}},"‹ "+w.name),el("span",{class:"grow"}),el("span",{class:"pill"},"Runde "+(cur.r+1)+" af "+w.rounds)),pb);
+  const shown=cur.t==="work"?cur.e:cur.next;
+  f.append(el("div",{class:"ring"},el("div",{class:"phase "+cur.t},cur.t==="work"?"Arbejde":"Pause – næste øvelse"),
+    el("div",{class:"big",id:"cLeft"},ci.left),el("h1",{style:"text-align:center;margin-top:10px"},shown.name),
+    el("a",{class:"vid",href:videoURL(shown.name),target:"_blank",rel:"noopener"},"▶ Se video")));
+  f.append(el("div",{class:"navrow"},
+    el("button",{class:"btn ghost",onclick:()=>{ci.running?pauseCircuit():runCircuit()}},ci.running?"Pause":"Start"),
+    el("button",{class:"btn",onclick:()=>{ci.phase++;ci.left=null;save();render();if(ci.running){clearInterval(cInt);runCircuit()}}},"Spring over ›")));
+  const nx=ph.slice(ci.phase+1).find(x=>x.t==="work");
+  if(nx)f.append(el("p",{class:"small muted",style:"text-align:center"},"Derefter: "+nx.e.name));
+  f.append(el("button",{class:"link",style:"margin-top:8px;color:var(--muted)",onclick:()=>{if(confirmTwice("cancel","Tryk igen for at kassere passet")){pauseCircuit();S.draft=null;save();go({v:"train"})}}},"Kassér pas"));
+  return f;
+}
+function runCircuit(){const d=S.draft;const {w}=findWO(d.pid,d.wid);const ph=phases(w);d.ci.running=true;unlockAudio();save();render();
+  clearInterval(cInt);let last=Date.now();cInt=setInterval(()=>{const now=Date.now();if(now-last<1000)return;last+=1000;const ci=S.draft&&S.draft.ci;if(!ci){clearInterval(cInt);return}
+    ci.left--;if(ci.left<=3&&ci.left>0)beep(1);
+    if(ci.left<=0){ci.phase++;ci.left=null;beep(2);save();if(ci.phase>=ph.length){clearInterval(cInt);ci.running=false;save()}render();return}
+    const x=document.getElementById("cLeft");if(x)x.textContent=ci.left;save()},200)}
+function pauseCircuit(){clearInterval(cInt);if(S.draft&&S.draft.ci){S.draft.ci.running=false;save()}if(route.v==="play")render()}
+function finishCircuit(){finishSheet()}
+
+/* ================= Timer & lyd ================= */
+let tEnd=0,tInt=null,actx=null;
+function unlockAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume&&actx.resume()}catch(e){}}
+function beep(n){try{unlockAudio();for(let k=0;k<n;k++){const o=k*0.22,g=actx.createGain(),osc=actx.createOscillator();osc.frequency.value=n>1?990:660;osc.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.22,actx.currentTime+o);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+o+.18);osc.start(actx.currentTime+o);osc.stop(actx.currentTime+o+.2)}}catch(e){}try{navigator.vibrate&&navigator.vibrate(n>1?[200,80,200]:80)}catch(e){}}
+function startTimer(sec,label){unlockAudio();tEnd=Date.now()+sec*1000;document.getElementById("tLabel").textContent="Pause · "+label;const T=document.getElementById("timer");T.classList.add("on");T.classList.remove("done");clearInterval(tInt);tick();tInt=setInterval(tick,250)}
+function tick(){const left=Math.max(0,Math.ceil((tEnd-Date.now())/1000));document.getElementById("tLeft").textContent=Math.floor(left/60)+":"+String(left%60).padStart(2,"0");if(left<=0){clearInterval(tInt);const T=document.getElementById("timer");T.classList.add("done");document.getElementById("tLabel").textContent="Klar til næste sæt!";beep(3);setTimeout(()=>{if(Date.now()-tEnd>4000)stopTimer()},5000)}}
+function stopTimer(){clearInterval(tInt);document.getElementById("timer").classList.remove("on","done")}
+document.getElementById("tStop").addEventListener("click",stopTimer);
+document.getElementById("tPlus").addEventListener("click",()=>{if(Date.now()>tEnd)tEnd=Date.now();tEnd+=15000;document.getElementById("timer").classList.remove("done");clearInterval(tInt);tick();tInt=setInterval(tick,250)});
+
+/* ================= Aktivitet ================= */
+function weekStart(off){const d=new Date();const day=(d.getDay()+6)%7;d.setHours(12,0,0,0);d.setDate(d.getDate()-day+off*7);return d}
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function weekStats(off){const s=weekStart(off),days=[];for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);days.push(iso(d))}
+  const per=days.map(dd=>S.sessions.filter(x=>x.date===dd).reduce((a,x)=>a+(x.min||0),0));
+  const count=S.sessions.filter(x=>days.includes(x.date)).length;return{days,per,count,min:per.reduce((a,b)=>a+b,0)}}
+let actOff=0;
+function viewActivity(){
+  const f=document.createDocumentFragment(),wk=weekStats(actOff),mx=Math.max(30,...wk.per);
+  f.append(el("h1",{},"Aktivitet"));
+  const label=actOff===0?"Denne uge":actOff===-1?"Sidste uge":fmtDate(wk.days[0])+" – "+fmtDate(wk.days[6]);
+  const card=el("div",{class:"card",style:"margin-top:10px"});
+  card.append(el("div",{class:"row"},el("button",{class:"link","aria-label":"Forrige uge",onclick:()=>{actOff--;render()}},"‹"),el("div",{class:"grow",style:"text-align:center;font-weight:700"},label),
+    el("button",{class:"link","aria-label":"Næste uge",disabled:actOff>=0,style:actOff>=0?"opacity:.3":"",onclick:()=>{if(actOff<0){actOff++;render()}}},"›")));
+  const ch=el("div",{class:"weekchart"});const names=["man","tirs","ons","tors","fre","lør","søn"];
+  wk.per.forEach((m,i)=>ch.append(el("div",{class:"col"},m?el("div",{class:"val"},m+" m"):el("div",{class:"val"},""),el("div",{class:"bar"+(m?"":" zero"),style:"height:"+(m?Math.max(6,m/mx*100):3)+"%"}),el("div",{class:"lab"},names[i]))));
+  card.append(ch);
+  card.append(el("div",{class:"tiles",style:"margin-top:12px"},el("div",{class:"tile"},el("b",{},wk.count),el("small",{},"pas")),el("div",{class:"tile"},el("b",{},wk.min),el("small",{},"minutter")),
+    el("div",{class:"tile"},el("b",{},S.sessions.filter(x=>wk.days.includes(x.date)&&x.done===x.total).length),el("small",{},"fuldt gennemført"))));
+  f.append(card);
+  f.append(el("h2",{},"Gennemførte pas"));
+  const list=el("div",{class:"stack"});
+  if(!S.sessions.length)list.append(el("div",{class:"card muted"},"Ingen pas endnu. Vælg et pas under Træning og tryk Start pas."));
+  [...S.sessions].reverse().slice(0,40).forEach((s,ri)=>{const pct=s.total?Math.round(s.done/s.total*100):100;const p=S.programs.find(x=>x.id===s.pid);
+    list.append(el("div",{class:"sess"},el("div",{class:"grow"},el("div",{style:"font-weight:700"},s.name+(p?" · "+p.name:"")),el("div",{class:"small muted"},fmtDate(s.date,{weekday:"short",day:"numeric",month:"short"})+" · "+s.min+" min · "+pct+" % afsluttet")),
+      s.rating?el("span",{class:"pill "+(s.rating==="Hård"?"a":s.rating==="God"?"g":"")},s.rating):null))});
+  f.append(list);
+  return f;
+}
+
+/* ================= Fremskridt ================= */
+let measSel="Talje";
+function lineChart(points,opts){
+  const ns="http://www.w3.org/2000/svg",W=340,H=190,L=34,R=14,T=14,B=26;
+  const svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.setAttribute("class","chart");svg.setAttribute("role","img");svg.setAttribute("aria-label",opts.label);
+  if(points.length<2){const t=document.createElementNS(ns,"text");t.setAttribute("x",W/2);t.setAttribute("y",H/2);t.setAttribute("text-anchor","middle");t.setAttribute("fill","var(--muted)");t.setAttribute("font-size","13");t.textContent=points.length?"Log en værdi mere for at se kurven":"Ingen målinger endnu";svg.append(t);return svg}
+  const xs=points.map(p=>new Date(p.d+"T12:00:00").getTime()),vs=points.map(p=>p.v);if(opts.goal!=null)vs.push(opts.goal);
+  let mn=Math.min(...vs),mx=Math.max(...vs);const pad=(mx-mn)*.15||1;mn-=pad;mx+=pad;
+  const x0=Math.min(...xs),x1=Math.max(...xs)||x0+1;
+  const X=t=>L+(t-x0)/((x1-x0)||1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  const mk=(n,a)=>{const e=document.createElementNS(ns,n);for(const k in a)e.setAttribute(k,a[k]);return e};
+  for(let i=0;i<=3;i++){const v=mn+(mx-mn)*i/3,y=Y(v);svg.append(mk("line",{x1:L,x2:W-R,y1:y,y2:y,stroke:"var(--line)","stroke-width":1}));const t=mk("text",{x:L-6,y:y+4,"text-anchor":"end","font-size":"10",fill:"var(--muted)"});t.textContent=fmtN(v,0);svg.append(t)}
+  if(opts.goal!=null){const y=Y(opts.goal);svg.append(mk("line",{x1:L,x2:W-R,y1:y,y2:y,stroke:"var(--good)","stroke-width":1.5,"stroke-dasharray":"5 4"}));const t=mk("text",{x:W-R,y:y-5,"text-anchor":"end","font-size":"10","font-weight":"700",fill:"var(--good)"});t.textContent="Mål "+fmtN(opts.goal)+" "+opts.unit;svg.append(t)}
+  const pts=points.map((p,i)=>[X(xs[i]),Y(p.v)]);
+  svg.append(mk("path",{d:"M"+pts[0][0]+","+(H-B)+" L"+pts.map(p=>p.join(",")).join(" L")+" L"+pts[pts.length-1][0]+","+(H-B)+" Z",fill:"var(--accent-soft)"}));
+  svg.append(mk("polyline",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:"var(--accent)","stroke-width":2.5,"stroke-linejoin":"round"}));
+  pts.forEach((p,i)=>svg.append(mk("circle",{cx:p[0],cy:p[1],r:i===pts.length-1?4.5:2.5,fill:"var(--accent)"})));
+  const lp=pts[pts.length-1],lt=mk("text",{x:Math.min(lp[0],W-R-4),y:lp[1]-9,"text-anchor":"end","font-size":"11","font-weight":"700",fill:"var(--ink)"});lt.textContent=fmtN(points[points.length-1].v)+" "+opts.unit;svg.append(lt);
+  [[x0,"start"],[x1,"end"]].forEach(([t,a])=>{const e=mk("text",{x:X(t),y:H-8,"text-anchor":a,"font-size":"10",fill:"var(--muted)"});e.textContent=fmtDate(iso(new Date(t)));svg.append(e)});
+  return svg;
+}
+function viewProgress(){
+  const f=document.createDocumentFragment();
+  f.append(el("h1",{},"Fremskridt"));
+  // Vægt
+  const ws=[...S.weights].sort((a,b)=>a.d<b.d?-1:1);
+  const start=ws[0]?.v??null,cur=ws[ws.length-1]?.v??null;
+  f.append(el("div",{class:"row",style:"margin-top:18px"},el("h2",{style:"margin:0",class:"grow"},"Vægt"),el("button",{class:"btn sm",onclick:logWeight},"Log vægt")));
+  if(cur!=null&&S.goal!=null){const left=cur-S.goal;f.append(el("p",{class:"muted",style:"margin:6px 0 0"},left>0?"Du er kun "+fmtN(left)+" kg fra at nå dit mål!":"Du har nået dit mål – flot!"))}
+  const wc=el("div",{class:"card",style:"margin-top:10px"});
+  wc.append(lineChart(ws,{unit:"kg",goal:S.goal,label:"Vægt over tid"}));
+  wc.append(el("div",{class:"tiles",style:"margin-top:10px"},
+    el("div",{class:"tile"},el("small",{},"Start"),el("b",{},start==null?"–":fmtN(start)+" kg")),
+    el("div",{class:"tile"},el("small",{},"Nuværende"),el("b",{},cur==null?"–":fmtN(cur)+" kg")),
+    el("button",{class:"tile goal",style:"text-align:left;font:inherit;color:inherit",onclick:setGoal},el("small",{},"Mål · ret"),el("b",{},S.goal==null?"Sæt mål":fmtN(S.goal)+" kg"))));
+  if(start!=null&&cur!=null&&ws.length>1)wc.append(el("p",{class:"small muted",style:"margin:8px 0 0"},"Ændring siden "+fmtDate(ws[0].d)+": "+(cur-start>0?"+":"")+fmtN(cur-start)+" kg"));
+  f.append(wc);
+  // Kropsmål
+  f.append(el("div",{class:"row",style:"margin-top:24px"},el("h2",{style:"margin:0",class:"grow"},"Kropsmål"),el("button",{class:"btn sm",onclick:logMeasures},"Log mål")));
+  const chips=el("div",{class:"chips",style:"margin-top:10px"});
+  ["Samlet",...MEASURES].forEach(m=>chips.append(el("button",{"aria-pressed":m===measSel?"true":"false",onclick:()=>{measSel=m;render()}},m)));
+  f.append(chips);
+  const ms=[...S.measures].sort((a,b)=>a.d<b.d?-1:1);
+  const series=ms.map(r=>({d:r.d,v:measSel==="Samlet"?(MEASURES.every(k=>r[k]!=null)?MEASURES.reduce((a,k)=>a+r[k],0):null):r[measSel]})).filter(p=>p.v!=null);
+  const mc=el("div",{class:"card",style:"margin-top:10px"});
+  mc.append(lineChart(series,{unit:"cm",label:measSel+" over tid"}));
+  const a=series[0]?.v,b=series[series.length-1]?.v;
+  mc.append(el("div",{class:"tiles",style:"margin-top:10px;grid-template-columns:repeat(3,1fr)"},
+    el("div",{class:"tile"},el("small",{},"Første"),el("b",{},a==null?"–":fmtN(a)+" cm")),
+    el("div",{class:"tile"},el("small",{},"Aktuel"),el("b",{},b==null?"–":fmtN(b)+" cm")),
+    el("div",{class:"tile goal"},el("small",{},"Ændring"),el("b",{},a==null||series.length<2?"–":(b-a>0?"+":"")+fmtN(b-a)+" cm"))));
+  if(measSel==="Samlet")mc.append(el("p",{class:"small muted",style:"margin:8px 0 0"},"Samlet = summen af alle 7 mål. Tæller kun målinger, hvor alle 7 er udfyldt."));
+  if(ms.length){const lastM=ms[ms.length-1],firstM=ms[0];const tbl=el("div",{class:"stack",style:"gap:4px;margin-top:10px"});
+    MEASURES.forEach(k=>{if(lastM[k]==null)return;const ch=firstM[k]!=null&&ms.length>1?lastM[k]-firstM[k]:null;
+      tbl.append(el("div",{class:"row small",style:"justify-content:space-between;border-top:1px solid var(--line);padding-top:6px"},el("span",{},k),el("span",{style:"font-variant-numeric:tabular-nums"},fmtN(lastM[k])+" cm"+(ch!=null?"  ("+(ch>0?"+":"")+fmtN(ch)+")":""))))});
+    mc.append(tbl)}
+  f.append(mc);
+  // Data
+  f.append(el("h2",{style:"margin-top:26px"},"Backup"));
+  f.append(el("div",{class:"card stack"},el("p",{class:"small muted",style:"margin:0"},"Alt gemmes kun på denne telefon. Kopiér en backup en gang imellem, og gem den fx i Noter. Så kan du hente alt igen på en ny telefon."),
+    el("button",{class:"btn ghost",onclick:async()=>{S.lastBackup=Date.now();save();const code=btoa(unescape(encodeURIComponent(JSON.stringify({...S,draft:null}))));try{await navigator.clipboard.writeText(code);toast("Backup kopieret")}catch(e){openSheet(c=>el("div",{class:"stack"},el("h2",{style:"margin:0"},"Kopiér selv"),el("textarea",{readonly:true},code),el("button",{class:"btn",onclick:c},"Luk")))}}},"Kopiér backup"),
+    el("button",{class:"btn line",onclick:importSheet},"Hent backup")));
+  return f;
+}
+function logWeight(){openSheet(close=>{const d=el("input",{id:"lw-d",type:"date",value:todayISO()}),v=el("input",{id:"lw-v",inputmode:"decimal",placeholder:"Fx 55,8"});
+  const recent=[...S.weights].sort((a,b)=>a.d<b.d?1:-1).slice(0,5);
+  return el("div",{class:"stack"},el("h2",{style:"margin:0"},"Log vægt"),el("div",{class:"grid2"},el("div",{class:"field"},el("label",{for:"lw-d"},"Dato"),d),el("div",{class:"field"},el("label",{for:"lw-v"},"Vægt (kg)"),v)),
+    el("button",{class:"btn",onclick:()=>{const x=num(v.value);if(x==null){toast("Skriv din vægt");return}S.weights=S.weights.filter(w=>w.d!==d.value);S.weights.push({d:d.value,v:x});save();close();render();toast("Vægt gemt ✓")}},"Gem"),
+    recent.length?el("div",{class:"stack",style:"gap:4px"},el("div",{class:"blabel"},"Seneste"),recent.map(r=>el("div",{class:"row small",style:"justify-content:space-between"},el("span",{},fmtDate(r.d,{day:"numeric",month:"short",year:"numeric"})+" · "+fmtN(r.v)+" kg"),el("button",{class:"link",style:"color:var(--muted)",onclick:()=>{S.weights=S.weights.filter(w=>w!==r);save();close();render()}},"Slet")))):null)})}
+function setGoal(){openSheet(close=>{const v=el("input",{id:"g-v",inputmode:"decimal",value:S.goal==null?"":String(S.goal).replace(".",","),placeholder:"Fx 53"});
+  return el("div",{class:"stack"},el("h2",{style:"margin:0"},"Dit vægtmål"),el("div",{class:"field"},el("label",{for:"g-v"},"Mål (kg)"),v),el("button",{class:"btn",onclick:()=>{S.goal=num(v.value);save();close();render();toast("Mål gemt ✓")}},"Gem mål"))})}
+function logMeasures(){openSheet(close=>{const d=el("input",{id:"lm-d",type:"date",value:todayISO()});const last=[...S.measures].sort((a,b)=>a.d<b.d?-1:1).pop()||{};const inp={};
+  const grid=el("div",{class:"grid2"});MEASURES.forEach(k=>{inp[k]=el("input",{id:"lm-"+k,inputmode:"decimal",placeholder:last[k]!=null?String(last[k]).replace(".",","):"cm"});grid.append(el("div",{class:"field"},el("label",{for:"lm-"+k},k+" (cm)"),inp[k]))});
+  return el("div",{class:"stack"},el("h2",{style:"margin:0"},"Log kropsmål"),el("div",{class:"field"},el("label",{for:"lm-d"},"Dato"),d),grid,el("p",{class:"small muted",style:"margin:0"},"Grå tal er dine sidste mål. Tomme felter gemmes ikke."),
+    el("button",{class:"btn",onclick:()=>{const r={d:d.value};let any=false;MEASURES.forEach(k=>{const x=num(inp[k].value);if(x!=null){r[k]=x;any=true}});if(!any){toast("Skriv mindst ét mål");return}
+      const ex=S.measures.find(m=>m.d===r.d);if(ex)Object.assign(ex,r);else S.measures.push(r);save();close();render();toast("Mål gemt ✓")}},"Gem mål"))})}
+function importSheet(){openSheet(close=>{const t=el("textarea",{id:"imp",placeholder:"Indsæt backup-koden her"});
+  return el("div",{class:"stack"},el("h2",{style:"margin:0"},"Hent backup"),t,el("button",{class:"btn",onclick:()=>{try{const d=JSON.parse(decodeURIComponent(escape(atob(t.value.trim()))));if(!Array.isArray(d.sessions))throw 0;S=Object.assign(blank(),d);save();close();toast("Backup hentet");render()}catch(e){toast("Koden virker ikke – kopiér hele koden igen")}}},"Hent"))})}
+
+render();
+</script>
+</body>
+</html>
